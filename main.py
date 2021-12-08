@@ -1,46 +1,47 @@
 import os
 import shutil
+from json import load, dump
 
-local = input('digite o local que deseja organizar: ')
+arquivos = load(open('save.json', 'r'))
+palavras_chave = load(open('palavras_chave.json', 'r'))
 
-dir = [rf'{local}\imagens', rf'{local}\zipados', rf'{local}\executaveis', rf'{local}\documentos', rf'{local}\outros']
-palavras_chave = {'imagens': ['png', 'jpg', 'webp'], 'zipados': ['zip', 'rar'], 'executaveis': ['exe'], 'documentos': ['docx', 'pdf']}
+if arquivos['principal'] == None:
+    local = input('digite o local que deseja organizar: ')
+    arquivos['principal'] = local
+    arquivos['zip'] = rf'{local}\zipados'
+    arquivos['imagens'] = rf'{local}\imagem'
+    arquivos['videos'] = rf'{local}\video'
+    arquivos['documentos'] = rf'{local}\documentos'
+    arquivos['musicas'] = rf'{local}\musicas'
+    arquivos['executaveis'] = rf'{local}\executaveis'
+    arquivos['outros'] = rf'{local}\outros'
+    
+    with open('save.json', 'w') as json_file:
+        dump(arquivos, json_file, indent=4)
 
-for caminho in dir:
+for caminho in arquivos.values():
     try:
         os.mkdir(caminho)
     except FileExistsError:
         continue
 
-for root, dirs, files in os.walk(local):
+for root, dirs, files in os.walk(arquivos['principal']):
     for file in files:
+        encontrado = False
         ext = file.split('.')[-1]
 
-        if ext in palavras_chave['imagens']:
-            caminho_antigo = os.path.join(root, file)
-            caminho_novo = os.path.join(dir[0], file)  
-            shutil.move(caminho_antigo, caminho_novo)
+        for chave, valor in palavras_chave.items():
+            if ext in valor:
+                encontrado = True
+                caminho_antigo = os.path.join(root, file)
+                caminho_novo = os.path.join(arquivos[chave], file)
+                shutil.move(caminho_antigo, caminho_novo)
+                break
         
-        elif ext in palavras_chave['zipados']:
+        if not encontrado:
             caminho_antigo = os.path.join(root, file)
-            caminho_novo = os.path.join(dir[1], file)  
+            caminho_novo = os.path.join(arquivos['outros'], file)
             shutil.move(caminho_antigo, caminho_novo)
-        
-        elif ext in palavras_chave['executaveis']:
-            caminho_antigo = os.path.join(root, file)
-            caminho_novo = os.path.join(dir[2], file)  
-            shutil.move(caminho_antigo, caminho_novo)
-        
-        elif ext in palavras_chave['documentos']:
-            print(f'{ext} é um documento')
-            caminho_antigo = os.path.join(root, file)
-            caminho_novo = os.path.join(dir[3], file)  
-            shutil.move(caminho_antigo, caminho_novo)
-        
-        else:
-            caminho_antigo = os.path.join(root, file)
-            caminho_novo = os.path.join(dir[4], file)  
-            shutil.move(caminho_antigo, caminho_novo)
-    break
 
-print('organização concluida com sucesso')
+    print('organização concluida com sucesso')
+    break

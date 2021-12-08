@@ -1,0 +1,8 @@
+{
+    "zip": ["zip", "rar"],
+    "imagens": ["png", "jpg", "webp"], 
+    "videos": ["mp4", "avi", "mov", "wmv", "flv", "avchd", "mkv"],
+    "documentos": ["docx", "pdf"],
+    "musicas": ["mp3", "wav", "aac", "wma", "flac", "alac"],
+    "executaveis": ["exe"]  
+}
